@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Local tool metadata
+.codex/
+
+# Streamlit / OS / editor noise
+.DS_Store
+Thumbs.db
+
+# Inference working files
+inference_workdir/
+
+# Generated datasets and intermediate assets
+data/interim/
+data/synthetic/
+
+# Training and inference outputs
+runs/
+
+# Local sample/archive inputs
+inference/
+
+# Keep datasets out of Git by default
+data/
+seal_dataset/images/
+seal_dataset/labels/
+
+# Logs
+*.log
