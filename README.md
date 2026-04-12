@@ -1,10 +1,10 @@
-# 📄 Seal & Signature Detection for Legal Documents
+# Seal & Signature Detection for Legal Documents
 
-## 🚀 Project Overview
+##  Project Overview
 
 This project builds a **computer vision system** to automatically detect **signatures and seals/stamps** in legal documents using deep learning.
 
-### 🎯 Problem Statement
+### Problem Statement
 
 Legal documents require:
 - **Signatures** → proof of authorization  
@@ -15,18 +15,18 @@ Manual verification is:
 - Error-prone  
 - Not scalable  
 
-👉 This project automates the detection using **YOLOv8 object detection**.
+This project automates the detection using **YOLOv8 object detection**.
 
 ---
 
-## 💡 Approach Summary
+##  Approach Summary
 
 The system uses:
 - **YOLOv8** for object detection  
 - **Synthetic dataset generation**  
 - **Real-world datasets (CEDAR, Tobacco, Roboflow)**  
 
-### 🔄 Pipeline
+### Pipeline
 
 
 Document (PDF/Image/DOCX)
@@ -42,9 +42,9 @@ Output + Visualization
 
 ---
 
-## 📊 Data Sources & Dataset Creation
+## Data Sources & Dataset Creation
 
-### 📁 Raw Data
+### Raw Data
 
 
 data/raw/
@@ -53,7 +53,7 @@ data/raw/
 ├── roboflow/train # annotated real documents
 
 
-### 📌 Dataset Details
+### Dataset Details
 
 - **Tobacco Dataset** → document backgrounds  
 - **CEDAR Dataset** → signature images  
@@ -63,7 +63,7 @@ data/raw/
 
 ---
 
-### 🧱 Dataset Creation Strategy
+### Dataset Creation Strategy
 
 #### 🔹 Stamp Extraction
 - Extract stamps using bounding boxes from Roboflow labels  
@@ -87,7 +87,7 @@ data/interim/stamp_crops/
 
 ---
 
-## 🏗 Synthetic Dataset Pipeline
+## Synthetic Dataset Pipeline
 
 Script:
 
@@ -110,7 +110,7 @@ data/synthetic/labels/
 
 ---
 
-## 📦 Dataset Assembly
+## Dataset Assembly
 
 Script:
 
@@ -136,7 +136,7 @@ seal_dataset/
 
 ---
 
-## 🧠 Training
+## Training
 
 Script:
 
@@ -154,11 +154,11 @@ train.py
 python train.py
 
 
-👉 Uses GPU if available.
+ Uses GPU if available.
 
 ---
 
-## 📈 Evaluation Metrics (Latest Run)
+##  Evaluation Metrics (Latest Run)
 
 Model: **seal_signature_model4**
 
@@ -224,7 +224,7 @@ runs/detect/
 
 ---
 
-## 🖥 Streamlit UI
+## Streamlit UI
 
 File:
 
@@ -272,7 +272,7 @@ streamlit run streamlit_app.py
 
 ---
 
-## ⚠️ Known Limitations
+## Known Limitations
 
 - Overlapping signature and seal can cause detection errors  
 - Signature detection confidence is lower than seal detection  
@@ -281,7 +281,7 @@ streamlit run streamlit_app.py
 
 ---
 
-## 🚀 Next Steps
+## Next Steps
 
 - Add real-world overlapping samples  
 - Build annotated validation dataset  
@@ -290,7 +290,7 @@ streamlit run streamlit_app.py
 
 ---
 
-## 🏁 Summary
+## Summary
 
 This project delivers a **complete document intelligence pipeline** using:
 - YOLOv8 object detection  
