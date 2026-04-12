@@ -1,206 +1,300 @@
-Seal & Signature Detection for Legal Documents
-🚀 Project Overview
+# 📄 Seal & Signature Detection for Legal Documents
 
-This project presents a computer vision pipeline for detecting signatures and seals/stamps in legal documents using deep learning.
+## 🚀 Project Overview
 
-🎯 Problem Statement
+This project builds a **computer vision system** to automatically detect **signatures and seals/stamps** in legal documents using deep learning.
 
-Legal documents often require:
+### 🎯 Problem Statement
 
-Signatures → proof of authorization
-Seals/Stamps → institutional validation
+Legal documents require:
+- **Signatures** → proof of authorization  
+- **Seals/Stamps** → institutional validation  
 
 Manual verification is:
+- Time-consuming  
+- Error-prone  
+- Not scalable  
 
-time-consuming
-error-prone
-difficult at scale
+👉 This project automates the detection using **YOLOv8 object detection**.
 
-👉 This project automates the detection process using object detection models.
+---
 
-💡 Approach Summary
+## 💡 Approach Summary
 
 The system uses:
+- **YOLOv8** for object detection  
+- **Synthetic dataset generation**  
+- **Real-world datasets (CEDAR, Tobacco, Roboflow)**  
 
-YOLOv8 for object detection
-A combination of:
-synthetic data (generated)
-real-world datasets
+### 🔄 Pipeline
 
-Pipeline:
 
 Document (PDF/Image/DOCX)
-        ↓
-Preprocessing (conversion to images)
-        ↓
+↓
+Convert to Images
+↓
 YOLOv8 Detection
-        ↓
+↓
 Bounding Boxes (signature, seal)
-        ↓
-Visualization + Output
-📊 Data Sources & Dataset Creation
-📁 Raw Data Sources
-data/raw/
-├── tobacco/images                # blank legal-style documents
-├── cedar/signatures/full_org     # signature images
-├── roboflow/train                # annotated real documents
-📌 Dataset Details
-Tobacco Dataset → document backgrounds
-CEDAR Dataset → signature samples
-Roboflow Dataset → real annotated documents
-Class 0 → signature
-Class 1 → stamp
-🧱 Dataset Creation Strategy
-🔹 Stamp Extraction
-Bounding boxes from Roboflow annotations are used
-Cropped stamps are saved into:
-data/interim/stamp_crops/
-🔹 Synthetic Composition
-Blank document pages (Tobacco) are used as base
-Each page is composited with:
-1 signature
-1 seal/stamp
-🔹 Final Dataset
-Synthetic + real images are merged
-Dataset is split into:
-Train / Validation / Test
-🏗 Synthetic Dataset Pipeline
+↓
+Output + Visualization
 
-Main script:
+
+---
+
+## 📊 Data Sources & Dataset Creation
+
+### 📁 Raw Data
+
+
+data/raw/
+├── tobacco/images # blank legal-style documents
+├── cedar/signatures/full_org # signature images
+├── roboflow/train # annotated real documents
+
+
+### 📌 Dataset Details
+
+- **Tobacco Dataset** → document backgrounds  
+- **CEDAR Dataset** → signature images  
+- **Roboflow Dataset** → annotated real documents  
+  - Class 0 → signature  
+  - Class 1 → stamp  
+
+---
+
+### 🧱 Dataset Creation Strategy
+
+#### 🔹 Stamp Extraction
+- Extract stamps using bounding boxes from Roboflow labels  
+- Save in:
+
+data/interim/stamp_crops/
+
+
+#### 🔹 Synthetic Data Generation
+- Use Tobacco pages as base  
+- Overlay:
+  - 1 signature (from CEDAR)
+  - 1 seal/stamp (from extracted crops)
+
+#### 🔹 Final Dataset
+- Combine synthetic + real images  
+- Split into:
+  - Train
+  - Validation
+  - Test  
+
+---
+
+## 🏗 Synthetic Dataset Pipeline
+
+Script:
 
 dataset_generation_script.py
-🔧 Pipeline Steps
-Stamp Crop Extraction
-Extract stamps using Roboflow bounding boxes
-Signature Augmentation
-Resize, rotate, adjust contrast
-Placement Strategy
-Random placement on document regions
-Avoid unrealistic overlaps
-Blending
-Alpha blending to simulate ink
-Randomization
-Scale, position, noise
-📂 Output Directories
+
+
+### Steps:
+- Extract stamp crops  
+- Augment signatures (resize, rotate, contrast)  
+- Random placement on documents  
+- Blend using alpha blending  
+- Add noise and scaling  
+
+### Output:
+
 data/interim/stamp_crops/
 data/synthetic/images/
 data/synthetic/labels/
-📦 Dataset Assembly
+
+
+---
+
+## 📦 Dataset Assembly
 
 Script:
 
 split_dataset.py
-📁 Output Structure
+
+
+### Output Structure:
+
 seal_dataset/
-├── images/
-│   ├── train/
-│   ├── val/
-│   ├── test/
-├── labels/
-│   ├── train/
-│   ├── val/
-│   ├── test/
+├── images/train
+├── images/val
+├── images/test
+├── labels/train
+├── labels/val
+├── labels/test
 └── data.yaml
-🏷 Classes
-names: ['signature', 'seal']
-🧠 Training
+
+
+### Classes:
+
+['signature', 'seal']
+
+
+---
+
+## 🧠 Training
 
 Script:
 
 train.py
-⚙️ Configuration
-Model: yolov8n.pt
-Image size: 640
-Epochs: 50
-Batch size: 16
+
+
+### Configuration:
+- Model: `yolov8n.pt`  
+- Image Size: `640`  
+- Epochs: `50`  
+- Batch Size: `16`  
+
+### Run:
+
 python train.py
 
-👉 Automatically uses GPU if available, otherwise CPU.
 
-📈 Evaluation Metrics (Latest Run)
+👉 Uses GPU if available.
 
-Model: seal_signature_model4
+---
 
-🔹 Validation (Final Epoch)
-Precision: 0.9847
-Recall: 0.9872
-mAP@50: 0.9911
-mAP@50-95: 0.8637
-🔹 Test Split (Held-Out)
-Precision: 0.979
-Recall: 0.978
-mAP@50: 0.990
-mAP@50-95: 0.863
-Per Class:
-Class	Precision	Recall	mAP@50	mAP@50-95
-Signature	0.965	0.955	0.985	0.786
-Seal	0.993	1.000	0.994	0.940
-🌍 Real-World Inference Check
+## 📈 Evaluation Metrics (Latest Run)
 
-Dataset:
+Model: **seal_signature_model4**
 
-inference/archive (9)/1
-📊 Summary
-984 / 1000 → documents with detections
-671 → with signatures
-913 → with seals
-600 → with both
-16 → no detections
-📌 Observations
-✅ Seal detection is high confidence and stable
-⚠️ Signature detection shows lower confidence
-❗ Known issue:
-Overlapping signature + seal can reduce accuracy
-🔎 Inference
+### Validation:
+- Precision: 0.9847  
+- Recall: 0.9872  
+- mAP@50: 0.9911  
+- mAP@50-95: 0.8637  
+
+### Test:
+- Precision: 0.979  
+- Recall: 0.978  
+- mAP@50: 0.990  
+- mAP@50-95: 0.863  
+
+### Per Class:
+
+| Class      | Precision | Recall | mAP@50 | mAP@50-95 |
+|-----------|----------|--------|--------|-----------|
+| Signature | 0.965    | 0.955  | 0.985  | 0.786     |
+| Seal      | 0.993    | 1.000  | 0.994  | 0.940     |
+
+---
+
+## 🌍 Real-World Inference Results
+
+Dataset: `inference/archive (9)/1`
+
+- 984 / 1000 → documents with detections  
+- 671 → documents with signatures  
+- 913 → documents with seals  
+- 600 → documents with both  
+- 16 → no detections  
+
+### Observations:
+- Seal detection is strong and reliable  
+- Signature detection has lower confidence  
+- Overlapping signature + seal reduces accuracy  
+
+---
+
+## 🔎 Inference
 
 Script:
 
 infer.py
-📥 Supported Formats
-JPG / PNG
-PDF
-DOCX
-🔄 Conversion Pipeline
-PDF → Images via pdftoppm
-DOCX → PDF via soffice
-▶️ Run Inference
+
+
+### Supported Formats:
+- JPG / PNG  
+- PDF (converted via `pdftoppm`)  
+- DOCX (converted via `soffice`)  
+
+### Run:
+
 python infer.py --source path/to/file
-📤 Output
+
+
+### Output:
+
 runs/detect/
 
-Includes:
 
-annotated images
-bounding boxes
-🖥 Streamlit UI
+---
+
+## 🖥 Streamlit UI
 
 File:
 
 streamlit_app.py
-✨ Features
-Upload:
-Images
-PDFs
-DOCX
-Visual detection output
-Summary of detections
-▶️ Run UI
-streamlit run streamlit_app.py
-⚙️ How to Run (End-to-End)
-1️⃣ Generate Dataset
-python dataset_generation_script.py
-2️⃣ Split Dataset
-python split_dataset.py
-3️⃣ Train Model
-python train.py
-4️⃣ Run Inference
-python infer.py --source sample.pdf
-5️⃣ Launch UI
-streamlit run streamlit_app.py
-#Summary
-This project demonstrates a complete document intelligence pipeline combining:
 
-synthetic data generation
-real dataset integration
-YOLOv8 detection
-multi-format inference
+
+### Features:
+- Upload images, PDFs, DOCX  
+- Visualize detections  
+- View summary results  
+
+### Run:
+
+streamlit run streamlit_app.py
+
+
+---
+
+## ⚙️ How to Run (End-to-End)
+
+### 1. Generate Dataset
+
+python dataset_generation_script.py
+
+
+### 2. Split Dataset
+
+python split_dataset.py
+
+
+### 3. Train Model
+
+python train.py
+
+
+### 4. Run Inference
+
+python infer.py --source sample.pdf
+
+
+### 5. Launch UI
+
+streamlit run streamlit_app.py
+
+
+---
+
+## ⚠️ Known Limitations
+
+- Overlapping signature and seal can cause detection errors  
+- Signature detection confidence is lower than seal detection  
+- Synthetic data dominates training distribution  
+- No fully annotated real-world benchmark dataset  
+
+---
+
+## 🚀 Next Steps
+
+- Add real-world overlapping samples  
+- Build annotated validation dataset  
+- Improve detection for faint signatures  
+- Improve robustness to noise and document artifacts  
+
+---
+
+## 🏁 Summary
+
+This project delivers a **complete document intelligence pipeline** using:
+- YOLOv8 object detection  
+- Synthetic + real dataset integration  
+- Multi-format document processing  
+
+👉 The system is **pilot-ready**, with strong seal detection and improving signat
