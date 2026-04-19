@@ -11,7 +11,7 @@ PDF_EXTENSIONS = {".pdf"}
 SUPPORTED_EXTENSIONS = IMAGE_EXTENSIONS | PDF_EXTENSIONS
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-DEFAULT_MODEL = PROJECT_ROOT / "runs" / "detect" / "seal_signature_model4" / "weights" / "best.pt"
+DEFAULT_MODEL = PROJECT_ROOT / "runs" / "detect" / "seal_signature_model2" / "weights" / "best.pt"
 WORK_ROOT = PROJECT_ROOT / "inference_workdir"
 
 
