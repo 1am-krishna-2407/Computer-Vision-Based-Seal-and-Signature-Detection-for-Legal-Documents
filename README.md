@@ -77,35 +77,19 @@ The training dataset is a **hybrid collection** combining synthetic and real-wor
 
 ```
 seal-signature-detector/
-│
-├── data/
-│   ├── synthetic/              # Generated document pages
-│   ├── raw/
-│   │   ├── roboflow/train/     # Legacy real dataset
-│   │   └── roboflow2_prepared/ # New real dataset
-│
-├── seal_dataset/
-│   ├── data.yaml               # Dataset config for YOLO
-│   ├── images/
-│   │   ├── train/
-│   │   ├── val/
-│   │   └── test/
-│   └── labels/
-│       ├── train/
-│       ├── val/
-│       └── test/
-│
+
+├──dataset_generation_script.py # helps in generating the synthetic part of the dataset
 ├── split_dataset.py            # Builds final dataset from 3 sources
 ├── train.py                    # Training entry point
-├── predict.py                  # Run inference on new images
+├── infer.py                # Run inference on new images
 ├── runs/
 │   └── detect/
 │       └── seal_signature_model2/   # Training outputs
 │           ├── weights/
-│           │   ├── best.pt
-│           │   └── last.pt
-│           └── results.csv
-│
+│               ├── best.pt
+│           
+├──streamlit_app.py        # UI of the project  
+├──requirements.txt
 └── README.md
 ```
 
