@@ -1,301 +1,277 @@
-# Seal & Signature Detection for Legal Documents
+# 🔏 Seal & Signature Detector
 
-##  Project Overview
+> **YOLOv8-based detection of handwritten signatures and official seals/stamps in document images**
 
-This project builds a **computer vision system** to automatically detect **signatures and seals/stamps** in legal documents using deep learning.
-
-### Problem Statement
-
-Legal documents require:
-- **Signatures** → proof of authorization  
-- **Seals/Stamps** → institutional validation  
-
-Manual verification is:
-- Time-consuming  
-- Error-prone  
-- Not scalable  
-
-This project automates the detection using **YOLOv8 object detection**.
-## Working Link: https://seal-and-signature-detection.streamlit.app/
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)](https://www.python.org/)
+[![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-orange)](https://github.com/ultralytics/ultralytics)
+[![mAP@50](https://img.shields.io/badge/mAP%4050-97.1%25-brightgreen)]()
+[![License](https://img.shields.io/badge/License-MIT-lightgrey)]()
 
 ---
 
-##  Approach Summary
+## Overview
 
-The system uses:
-- **YOLOv8** for object detection  
-- **Synthetic dataset generation**  
-- **Real-world datasets (CEDAR, Tobacco, Roboflow)**  
+This project trains and deploys a real-time object detection model to locate two key document elements in scanned or photographed document images:
 
-### Pipeline
+| Class ID | Label | Description |
+|----------|-------|-------------|
+| `0` | `signature` | Handwritten cursive/semi-cursive marks |
+| `1` | `seal` | Official stamps, ink seals, or embossed marks |
 
-
-Document (PDF/Image/DOCX)
-↓
-Convert to Images
-↓
-YOLOv8 Detection
-↓
-Bounding Boxes (signature, seal)
-↓
-Output + Visualization
-
+The model is built on **YOLOv8n** (Ultralytics) and trained on a **hybrid dataset** of 4,902 labeled document images combining synthetic generation and real-world annotation.
 
 ---
 
-## Data Sources & Dataset Creation
+## Results
 
-### Raw Data
+| Metric | Final Epoch (50) | Best Epoch (48) |
+|--------|-----------------|-----------------|
+| Precision | **0.9545** | 0.9481 |
+| Recall | **0.9260** | 0.9315 |
+| mAP@50 | **0.9710** | **0.9712** |
+| mAP@50-95 | **0.7646** | 0.7661 |
 
-
-data/raw/
-├── tobacco/images # blank legal-style documents
-├── cedar/signatures/full_org # signature images
-├── roboflow/train # annotated real documents
-
-
-### Dataset Details
-
-- **Tobacco Dataset** → document backgrounds  
-- **CEDAR Dataset** → signature images  
-- **Roboflow Dataset** → annotated real documents  
-  - Class 0 → signature  
-  - Class 1 → stamp  
+Training converged stably with near-zero gap between training and validation losses, confirming strong generalization without overfitting.
 
 ---
 
-### Dataset Creation Strategy
+## Dataset
 
-#### 🔹 Stamp Extraction
-- Extract stamps using bounding boxes from Roboflow labels  
-- Save in:
+The training dataset is a **hybrid collection** combining synthetic and real-world document images.
 
-data/interim/stamp_crops/
+### Composition
 
+| Source | Images | Notes |
+|--------|--------|-------|
+| Synthetic (generated) | 3,000 | Built on real document layouts |
+| Real — Legacy Roboflow | 297 | Older manually labeled collection |
+| Real — Roboflow2 | 1,605 | Newer, larger, consistently labeled |
+| **Total** | **4,902** | |
 
-#### 🔹 Synthetic Data Generation
-- Use Tobacco pages as base  
-- Overlay:
-  - 1 signature (from CEDAR)
-  - 1 seal/stamp (from extracted crops)
+### Splits
 
-#### 🔹 Final Dataset
-- Combine synthetic + real images  
-- Split into:
-  - Train
-  - Validation
-  - Test  
+| Split | Synthetic | Legacy Real | New Real | Total |
+|-------|-----------|-------------|----------|-------|
+| Train | 2,100 | 207 | 1,156 | **3,463** |
+| Validation | 599 | 60 | 289 | **948** |
+| Test | 301 | 30 | 160 | **491** |
 
----
+### Instance Counts (Training Split)
 
-## Synthetic Dataset Pipeline
+- **Signatures:** 3,970 instances
+- **Seals:** 3,764 instances
+- **Class balance:** ~51% / 49% — near-perfect balance
 
-Script:
+### Image Patterns (Training Split)
 
-dataset_generation_script.py
-
-
-### Steps:
-- Extract stamp crops  
-- Augment signatures (resize, rotate, contrast)  
-- Random placement on documents  
-- Blend using alpha blending  
-- Add noise and scaling  
-
-### Output:
-
-data/interim/stamp_crops/
-data/synthetic/images/
-data/synthetic/labels/
-
+| Pattern | Count | % |
+|---------|-------|----|
+| Both signature + seal | 2,892 | 83.5% |
+| Signature only | 399 | 11.5% |
+| Seal only | 116 | 3.3% |
+| Neither (negative) | 56 | 1.6% |
 
 ---
 
-## Dataset Assembly
+## Project Structure
 
-Script:
-
-split_dataset.py
-
-
-### Output Structure:
-
-seal_dataset/
-├── images/train
-├── images/val
-├── images/test
-├── labels/train
-├── labels/val
-├── labels/test
-└── data.yaml
-
-
-### Classes:
-
-['signature', 'seal']
-
-
----
-
-## Training
-
-Script:
-
-train.py
-
-
-### Configuration:
-- Model: `yolov8n.pt`  
-- Image Size: `640`  
-- Epochs: `50`  
-- Batch Size: `16`  
-
-### Run:
-
-python train.py
-
-
- Uses GPU if available.
+```
+seal-signature-detector/
+│
+├── data/
+│   ├── synthetic/              # Generated document pages
+│   ├── raw/
+│   │   ├── roboflow/train/     # Legacy real dataset
+│   │   └── roboflow2_prepared/ # New real dataset
+│
+├── seal_dataset/
+│   ├── data.yaml               # Dataset config for YOLO
+│   ├── images/
+│   │   ├── train/
+│   │   ├── val/
+│   │   └── test/
+│   └── labels/
+│       ├── train/
+│       ├── val/
+│       └── test/
+│
+├── split_dataset.py            # Builds final dataset from 3 sources
+├── train.py                    # Training entry point
+├── predict.py                  # Run inference on new images
+├── runs/
+│   └── detect/
+│       └── seal_signature_model2/   # Training outputs
+│           ├── weights/
+│           │   ├── best.pt
+│           │   └── last.pt
+│           └── results.csv
+│
+└── README.md
+```
 
 ---
 
-##  Evaluation Metrics (Latest Run)
+## Quickstart
 
-Model: **seal_signature_model4**
+### 1. Install Dependencies
 
-### Validation:
-- Precision: 0.9847  
-- Recall: 0.9872  
-- mAP@50: 0.9911  
-- mAP@50-95: 0.8637  
+```bash
+pip install ultralytics
+```
 
-### Test:
-- Precision: 0.979  
-- Recall: 0.978  
-- mAP@50: 0.990  
-- mAP@50-95: 0.863  
+### 2. Prepare the Dataset
 
-### Per Class:
-
-| Class      | Precision | Recall | mAP@50 | mAP@50-95 |
-|-----------|----------|--------|--------|-----------|
-| Signature | 0.965    | 0.955  | 0.985  | 0.786     |
-| Seal      | 0.993    | 1.000  | 0.994  | 0.940     |
-
----
-
-## 🌍 Real-World Inference Results
-
-Dataset: `inference/archive (9)/1`
-
-- 984 / 1000 → documents with detections  
-- 671 → documents with signatures  
-- 913 → documents with seals  
-- 600 → documents with both  
-- 16 → no detections  
-
-### Observations:
-- Seal detection is strong and reliable  
-- Signature detection has lower confidence  
-- Overlapping signature + seal reduces accuracy  
-
----
-
-## 🔎 Inference
-
-Script:
-
-infer.py
-
-
-### Supported Formats:
-- JPG / PNG  
-- PDF (converted via `pdftoppm`)  
-- DOCX (converted via `soffice`)  
-
-### Run:
-
-python infer.py --source path/to/file
-
-
-### Output:
-
-runs/detect/
-
-
----
-
-## Streamlit UI
-
-File:
-
-streamlit_app.py
-
-
-### Features:
-- Upload images, PDFs, DOCX  
-- Visualize detections  
-- View summary results  
-
-### Run:
-
-streamlit run streamlit_app.py
-
-
----
-
-## ⚙️ How to Run (End-to-End)
-
-### 1. Generate Dataset
-
-python dataset_generation_script.py
-
-
-### 2. Split Dataset
-
+```bash
 python split_dataset.py
+```
 
+This script merges the three data sources (synthetic, legacy real, new real) and writes train/val/test splits to `seal_dataset/`.
 
-### 3. Train Model
+### 3. Train
 
-python train.py
+```bash
+yolo detect train \
+  model=yolov8n.pt \
+  data=seal_dataset/data.yaml \
+  epochs=50 \
+  imgsz=640 \
+  batch=16 \
+  name=seal_signature_model2 \
+  device=0
+```
 
+Or using Python:
 
-### 4. Run Inference
+```python
+from ultralytics import YOLO
 
-python infer.py --source sample.pdf
+model = YOLO("yolov8n.pt")
+model.train(
+    data="seal_dataset/data.yaml",
+    epochs=50,
+    imgsz=640,
+    batch=16,
+    name="seal_signature_model2",
+    device=0
+)
+```
 
+### 4. Evaluate
 
-### 5. Launch UI
+```bash
+yolo detect val \
+  model=runs/detect/seal_signature_model2/weights/best.pt \
+  data=seal_dataset/data.yaml
+```
 
-streamlit run streamlit_app.py
+### 5. Run Inference
 
+```bash
+yolo detect predict \
+  model=runs/detect/seal_signature_model2/weights/best.pt \
+  source=path/to/your/document.jpg \
+  imgsz=640 \
+  conf=0.25
+```
+
+Or in Python:
+
+```python
+from ultralytics import YOLO
+
+model = YOLO("runs/detect/seal_signature_model2/weights/best.pt")
+results = model.predict("document.jpg", imgsz=640, conf=0.25)
+
+for r in results:
+    for box in r.boxes:
+        cls = int(box.cls)
+        conf = float(box.conf)
+        label = "signature" if cls == 0 else "seal"
+        print(f"Detected: {label} ({conf:.2f})")
+```
+
+---
+
+## Dataset YAML Format
+
+```yaml
+# seal_dataset/data.yaml
+path: ./seal_dataset
+train: images/train
+val: images/val
+test: images/test
+
+nc: 2
+names:
+  0: signature
+  1: seal
+```
+
+---
+
+## Label Format
+
+All annotations follow YOLO format — one `.txt` file per image with one detection per line:
+
+```
+<class_id> <x_center> <y_center> <width> <height>
+```
+
+All values are normalized to `[0, 1]` relative to image dimensions. Example:
+
+```
+0 0.512 0.743 0.231 0.087
+1 0.308 0.614 0.195 0.201
+```
+
+---
+
+## Training Configuration Summary
+
+| Parameter | Value |
+|-----------|-------|
+| Model | YOLOv8n |
+| Pretrained weights | `yolov8n.pt` (COCO) |
+| Input size | 640 × 640 px |
+| Batch size | 16 |
+| Epochs | 50 |
+| Device | GPU (device 0) |
+| Run name | `seal_signature_model2` |
+| Dataset config | `seal_dataset/data.yaml` |
+
+---
+
+## Final Loss Values (Epoch 50)
+
+| Loss | Train | Validation |
+|------|-------|------------|
+| Box Loss | 0.8006 | 0.8072 |
+| Class Loss | 0.4238 | 0.3951 |
+| DFL Loss | 1.0740 | 1.0785 |
+
+The near-identical train/val losses confirm stable convergence without significant overfitting.
 
 ---
 
 ## Known Limitations
 
-- Overlapping signature and seal can cause detection errors  
-- Signature detection confidence is lower than seal detection  
-- Synthetic data dominates training distribution  
-- No fully annotated real-world benchmark dataset  
+- **Seal-only images are underrepresented** (3.3% of training) — isolated seal detection may be slightly weaker than co-occurrence detection.
+- **Negative images are sparse** (1.6%) — consider adding more clean background images to reduce false positives in deployment.
+- **mAP@50-95 gap** — bounding box localization on irregular signature shapes still has room to improve.
 
 ---
 
-## Next Steps
+## Roadmap
 
-- Add real-world overlapping samples  
-- Build annotated validation dataset  
-- Improve detection for faint signatures  
-- Improve robustness to noise and document artifacts  
+- [ ] Per-pattern evaluation (seal-only, sig-only, both, neither)
+- [ ] YOLOv8s / YOLOv8m scale comparison
+- [ ] Oriented Bounding Box (OBB) variant for tilted stamps
+- [ ] ONNX / TensorRT export for production deployment
+- [ ] REST API wrapper for document processing pipelines
 
 ---
 
-## Summary
 
-This project delivers a **complete document intelligence pipeline** using:
-- YOLOv8 object detection  
-- Synthetic + real dataset integration  
-- Multi-format document processing  
+## License
 
-👉 The system is **pilot-ready**, with strong seal detection and improving signat
+This project is released under the [MIT License](LICENSE).
