@@ -245,16 +245,6 @@ The near-identical train/val losses confirm stable convergence without significa
 
 ---
 
-## Roadmap
-
-- [ ] Per-pattern evaluation (seal-only, sig-only, both, neither)
-- [ ] YOLOv8s / YOLOv8m scale comparison
-- [ ] Oriented Bounding Box (OBB) variant for tilted stamps
-- [ ] ONNX / TensorRT export for production deployment
-- [ ] REST API wrapper for document processing pipelines
-
----
-
 
 ## License
 
