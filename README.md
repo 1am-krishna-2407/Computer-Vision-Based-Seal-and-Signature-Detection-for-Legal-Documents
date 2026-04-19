@@ -1,6 +1,6 @@
 # 🔏 Seal & Signature Detector
 
-> **YOLOv8-based detection of handwritten signatures and official seals/stamps in document images**
+> **YOLOv8-based detection of handwritten signatures and official seals/stamps in document images/pdf**
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python)](https://www.python.org/)
 [![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-orange)](https://github.com/ultralytics/ultralytics)
