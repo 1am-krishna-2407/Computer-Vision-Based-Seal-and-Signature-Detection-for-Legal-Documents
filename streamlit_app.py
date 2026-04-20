@@ -106,8 +106,8 @@ def render_hero():
     st.markdown(
         """
         <div class="hero-panel">
-            <div class="hero-kicker">Seal & Signature Detection</div>
-            <h1>Upload a file and compare the original with the annotated result.</h1>
+            <div class="hero-kicker">Upload a file and compare the original with the annotated result.</div>
+            <h1>Seal & Signature Detection</h1>
             <p>
                 The interface is intentionally simple: choose files from the sidebar, run detection,
                 and review the source and annotated outputs side by side.
