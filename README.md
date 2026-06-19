@@ -20,9 +20,7 @@ This project trains and deploys a real-time object detection model to locate two
 | `1` | `seal` | Official stamps, ink seals, or embossed marks |
 
 The model is built on **YOLOv8n** (Ultralytics) and trained on a **hybrid dataset** of 4,902 labeled document images combining synthetic generation and real-world annotation.
-
 ---
-
 ## Results
 
 | Metric | Final Epoch (50) | Best Epoch (48) |
